@@ -1,0 +1,244 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+
+// Criar o modelo de entidade Territorio
+typedef struct
+{
+    char nome[30];
+    char cor[10];
+    int tropas;
+} Territorio;
+
+/* 
+Criar a interação com o usuário via terminal para cadastro de territórios. Foi implementada uma
+funcionalidade que permite determinar a quantidade de territorios com base no interesse do usuário. 
+*/
+
+void ListarTerritorios(Territorio *territorios, int qtde){
+    printf("<:><:><:> Teritórios Cadastrados <:><:><:>\n");
+    
+    for (int i = 0; i <= qtde - 1; i++)
+    {
+        if(i > 0) printf("\n________________\n");
+        printf("\nNome: %s", territorios[i].nome);
+        printf("\nCor: %s", territorios[i].cor);
+        printf("\nTropas: %d", territorios[i].tropas);
+    }   
+}
+
+// Função para cadastrar teritórios
+int CadastrarTerritorios(int qtde, Territorio *territorios){
+    
+    // Verificar se a alocação foi bem sucedida
+    if (territorios == NULL){
+        printf("Erro de alocação!\n");
+        return 1;
+    }
+
+    // Itera para cadastrar a quantidade desejada de territórios
+    for (int i = 0; i <= qtde - 1; i++)
+    {
+        if(i > 0) printf("________________\n\n");
+        printf("Cadastre o território de número %d \n", i + 1);
+        printf("\n");
+
+        printf("Digite o nome do território: ");
+        scanf("%s", &territorios[i].nome);
+
+        printf("Digite a cor do domínio: ");
+        scanf("%s", &territorios[i].cor);
+
+        printf("Digite a quantidade de tropas: ");
+        scanf("%d", &territorios[i].tropas); 
+
+        printf("\n");
+    }
+
+    // Listar os territórios criados imadiatamente após o cadastro do último
+    ListarTerritorios(territorios, qtde);
+    printf("\n\n");
+    /*
+    for (int i = 0; i <= qtde - 1; i++)
+    {
+        if(i > 0) printf("\n________________\n");
+        printf("\nNome: %s", territorios[i].nome);
+        printf("\nCor: %s", territorios[i].cor);
+        printf("\nTropas: %d", territorios[i].tropas);
+    } 
+    */   
+}
+
+Territorio *BuscarTerritorio(Territorio *territorios, int qtde, char nome[])
+{
+    for (int i = 0; i < qtde; i++)
+    {
+        if (strcmp(territorios[i].nome, nome) == 0)
+        {
+            return &territorios[i];
+        }
+    }
+
+    return NULL;
+}
+
+// Função para realizar o ataque
+void Atacar(Territorio *territorios, int qtde){
+    
+    int opcao;
+    
+    do{
+        int dadoAtacante = rand() % 6 + 1;
+        int dadoDefensor = rand() % 6 + 1;
+
+        char atacante[30];
+        char defensor[30];
+        
+        printf("Informe o exército atacante: ");
+        scanf("%s", &atacante);
+        
+        printf("Informe o exército defensor: ");
+        scanf("%s", &defensor);
+        printf("\n");
+        
+        Territorio *tAtacante = BuscarTerritorio(territorios, qtde, atacante);
+        Territorio *tDefensor = BuscarTerritorio(territorios, qtde, defensor);
+        //Atacar(BuscarTerritorio(territorios, qtde, atacante), BuscarTerritorio(territorios, qtde, defensor));
+
+        if (strcmp(tAtacante->cor, tDefensor->cor) == 0){
+            printf("Não é permitido atacar territorios pertencentes à mesma cor.\n\n");
+        }
+        else{
+            printf("Poder de ataque do território %s: %d\n", &tAtacante->nome, dadoAtacante);
+            printf("Poder de defesa do território %s: %d\n", &tDefensor->nome, dadoDefensor);
+            
+            if (dadoAtacante > dadoDefensor){
+                tDefensor->tropas += tAtacante->tropas / 2;
+                tAtacante->tropas -= tAtacante->tropas / 2;
+                printf("O Atancante venceu!\n");
+                printf("O território %s foi dominado pelo território %s\n\n", tDefensor->nome, tAtacante->nome);
+                strcpy(tDefensor->cor, tAtacante->cor);
+            }
+            else if (dadoAtacante < dadoDefensor){
+                tAtacante -> tropas--;
+                printf("O Defensor venceu!\n\n");
+            }
+            else{
+                printf("Combate empatado\n\n");
+            }
+            
+            /*
+            if (tAtacante->tropas <= 0){
+                printf("O território %s foi dominado pelo território %s", tAtacante->nome, tDefensor->nome);
+                strcpy(tAtacante->cor, tDefensor->cor);
+                }
+                
+                if (tDefensor->tropas <= 0){
+                    printf("O território %s foi dominado pelo território %s", tDefensor->nome, tAtacante->nome);
+                    strcpy(tDefensor->cor, tAtacante->cor);
+                    } 
+                    */  
+                   
+        };
+        // Listar territórios
+        ListarTerritorios(territorios, qtde);
+        printf("\n");
+        
+        printf("Deseja continuar jogando?   [1] Sim  [0] Não\n");
+        scanf("%d", &opcao);
+        printf("\n");
+        
+    }while(opcao != 0);
+
+    printf("\n");
+}
+
+int main(){
+
+    srand(time(NULL)); // Garante a aleatoriedade dos resultados dos dados
+    printf("\n<:><:><:> Cadastro de Teritórios <:><:><:>\n\n");
+    int qtde;
+
+    printf("Quantos territórios desejas cadastrar? ");
+    scanf("%d", &qtde);
+    printf("\n");
+    
+    // Implementado no desafio aventureiro
+    // Territorio territorios[qtde]; ** Suprimido pela forma de alocação dinâmica
+    //Territorio *territorios; //Defini o ponteiro
+
+    Territorio *territorios = /*(struct Territorio *)*/ calloc(qtde, sizeof(Territorio)); // Aloquei a memória dinamicamente
+
+    CadastrarTerritorios(qtde, territorios); // Fução que abstrai o cadastro de territórios
+
+    //if (territorios == NULL){
+    //    printf("Erro de alocação!\n");
+    //    return 1;
+    //}
+    // Fim Implementado no desafio aventureiro
+
+    //for (int i = 0; i <= qtde - 1; i++)
+    //{
+    //    if(i > 0) printf("________________\n\n");
+    //    printf("Cadastre o território de número %d \n", i + 1);
+    //    printf("\n");
+
+    //    printf("Digite o nome do território: ");
+    //    scanf("%s", &territorios[i].nome);
+
+    //    printf("Digite a cor do domínio: ");
+    //    scanf("%s", &territorios[i].cor);
+
+    //    printf("Digite a quantidade de tropas: ");
+    //    scanf("%d", &territorios[i].tropas); 
+
+    //    printf("\n");
+    //}
+
+    // Listar os territórios criados imadiatamente após o cadastro do último
+    //printf("<:><:><:> Teritórios Cadastrados <:><:><:>\n");
+    
+    //for (int i = 0; i <= qtde - 1; i++)
+    //{
+    //    if(i > 0) printf("\n________________\n");
+    //    printf("\nNome: %s", territorios[i].nome);
+    //    printf("\nCor: %s", territorios[i].cor);
+    //    printf("\nTropas: %d", territorios[i].tropas);
+    //}
+
+    
+    /*
+    int opcao;
+    
+    do{
+        char atacante[30];
+        char defensor[30];
+
+        Territorio *tAtacante;
+        Territorio *tDefensor;
+
+        printf("Informe o exército atacante.");
+        scanf("%s", &atacante);
+        printf("\n");
+
+        printf("Informe o exército defensor.");
+        scanf("%s", &defensor);
+        printf("\n");
+
+        Atacar(BuscarTerritorio(territorios, qtde, atacante), BuscarTerritorio(territorios, qtde, defensor));
+                
+        printf("Deseja continuar jogando?   [1] Sim  [0] Não");
+        scanf("%d", &opcao);
+        printf("\n");
+        
+    }while(opcao == 0);
+    
+    */
+
+    Atacar(territorios, qtde);
+
+    printf("<:><:><:> Fim do Processamento <:><:><:>\n\n");
+    
+    free(territorios);
+}
